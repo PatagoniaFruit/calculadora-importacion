@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Importación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="p-6 md:p-12">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-gray-800">Calculadora de Importación DDP</h1>
+        <p class="text-center text-gray-600 mb-8">Calcula el costo total de importación por unidad de tus productos.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Sección de Proveedores y Productos -->
+            <div class="bg-gray-50 rounded-lg p-5 shadow-sm">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Gestor de Productos</h2>
+                <div class="bg-gray-100 rounded-md p-3 mb-4">
+                    <h3 class="font-medium text-gray-800 mb-2">Agregar Nuevo Producto</h3>
+                    <div class="space-y-2">
+                        <div>
+                            <label for="newProductName" class="block text-sm font-medium text-gray-700">Nombre del Producto:</label>
+                            <input type="text" id="newProductName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="Ej: Pulpa de Mango">
+                        </div>
+                        <div>
+                            <label for="newProductMeasureUnit" class="block text-sm font-medium text-gray-700">Tipo de Medida:</label>
+                             <select id="newProductMeasureUnit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                                <option value="unidades">Unidades</option>
+                                <option value="kg">Kilogramos</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="newProductFOB_Input" class="block text-sm font-medium text-gray-700">FOB por Unidad de Medida:</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="number" id="newProductFOB_Input" class="flex-grow rounded-md border-gray-300 shadow-sm p-2">
+                                <select id="newProductFOB_Currency" class="rounded-md border-gray-300 shadow-sm p-2">
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="USD">USD ($)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="unitFields">
+                            <div>
+                                <label for="newUnitsPerCase" class="block text-sm font-medium text-gray-700">Unidades por Caja:</label>
+                                <input type="number" id="newUnitsPerCase" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                            </div>
+                            <div>
+                                <label for="newCasesPerPallet" class="block text-sm font-medium text-gray-700">Cajas por Pallet:</label>
+                                <input type="number" id="newCasesPerPallet" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                            </div>
+                        </div>
+                        <button id="addProductBtn" class="w-full bg-indigo-600 text-white rounded-md py-2 px-4 hover:bg-indigo-700 transition-colors">
+                            Agregar Producto
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Productos Guardados</h3>
+                    <div id="savedProductsContainer" class="space-y-2">
+                        <!-- La lista de productos guardados se insertará aquí -->
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Configuración del Contenedor</h3>
+                    <div id="productConfigContainer" class="space-y-4">
+                        <!-- La configuración de productos se insertará aquí dinámicamente -->
+                    </div>
+                    <button id="addConfigBtn" class="w-full bg-blue-600 text-white rounded-md py-2 px-4 mt-4 hover:bg-blue-700 transition-colors">
+                        Agregar Producto al Contenedor
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <label for="comision" class="block text-sm font-medium text-gray-700">Comisión (%):</label>
+                    <input type="number" id="comision" value="6" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                </div>
+                <div class="mb-4">
+                    <label for="servicios" class="block text-sm font-medium text-gray-700">Servicios (USD):</label>
+                    <input type="number" id="servicios" value="0.00" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                </div>
+            </div>
+
+            <!-- Sección de Gastos de Importación -->
+            <div class="bg-gray-50 rounded-lg p-5 shadow-sm">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Gastos & Fletes</h2>
+                <div class="mb-4">
+                    <label for="exchangeRateEUR" class="block text-sm font-medium text-gray-700">Tipo de Cambio (EUR a USD):</label>
+                    <input type="number" id="exchangeRateEUR" value="1.17" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                </div>
+                <div class="mb-4">
+                    <label for="exchangeRateCLP" class="block text-sm font-medium text-gray-700">Tipo de Cambio (CLP a USD):</label>
+                    <input type="number" id="exchangeRateCLP" value="950" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="origen" class="block text-sm font-medium text-gray-700">Origen de Transporte:</label>
+                        <input type="text" id="origen" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="Ej: San Antonio">
+                    </div>
+                    <div>
+                        <label for="destino" class="block text-sm font-medium text-gray-700">Destino de Transporte:</label>
+                        <input type="text" id="destino" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="Ej: Temuco">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="fleteMaritimo" class="block text-sm font-medium text-gray-700">Flete Marítimo Total (USD):</label>
+                    <input type="number" id="fleteMaritimo" value="4212.56" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                </div>
+                <div class="mb-4">
+                    <label for="fleteTerrestreCLP" class="block text-sm font-medium text-gray-700">Flete Terrestre Total (CLP):</label>
+                    <input type="number" id="fleteTerrestreCLP" value="150000" step="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                </div>
+                <div class="mb-4">
+                    <label for="agenciamiento" class="block text-sm font-medium text-gray-700">Agenciamiento (%):</label>
+                    <input type="number" id="agenciamiento" value="0.35" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                </div>
+                <div class="mb-4">
+                    <label for="despachoAduanero" class="block text-sm font-medium text-gray-700">Despacho Aduanero (USD):</label>
+                    <input type="number" id="despachoAduanero" value="50.00" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                </div>
+                <div class="mb-4">
+                    <label for="seguro" class="block text-sm font-medium text-gray-700">Seguro (%):</label>
+                    <input type="number" id="seguro" value="0.40" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                </div>
+                <div class="mb-4">
+                    <label for="cda" class="block text-sm font-medium text-gray-700">CDA (USD):</label>
+                    <input type="number" id="cda" value="150.00" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                </div>
+                 <div class="mb-4">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">Gastos Adicionales</h3>
+                    <div id="additionalCostsContainer" class="space-y-2">
+                        <!-- Gastos adicionales se insertarán aquí dinámicamente -->
+                    </div>
+                    <button id="addAdditionalCostBtn" class="w-full bg-yellow-400 text-gray-800 rounded-md py-2 px-4 mt-2 hover:bg-yellow-500 transition-colors">
+                        Agregar Gasto Adicional
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultados y Resumen de Costos -->
+        <div class="bg-blue-50 rounded-xl p-6 md:p-8 shadow-inner">
+            <h2 class="text-2xl font-bold text-center mb-4 text-blue-800">Resumen de Costos DDP</h2>
+            <div id="costosDesglosados" class="space-y-4">
+                <!-- Los resultados se inyectarán aquí por JavaScript -->
+            </div>
+            
+            <h3 class="text-lg font-semibold mt-8 mb-2 text-blue-700">Costo Unitario por Producto</h3>
+            <div id="costoUnitarioPorProducto" class="space-y-4">
+                <!-- Los costos unitarios por producto se inyectarán aquí -->
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-blue-200">
+                <div class="flex justify-between items-center text-xl font-bold text-blue-800">
+                    <span>Costo Unitario DDP (Promedio):</span>
+                    <span id="costoUnitarioDDP" class="text-2xl">--</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="./datos.js"></script>
+    <script>
+        let configCounter = 0;
+        let additionalCostCounter = 0;
+
+        const updateProductOptions = () => {
+            const selects = document.querySelectorAll('.product-select');
+            selects.forEach(select => {
+                const currentId = select.value;
+                select.innerHTML = '';
+                productsData.forEach(prod => {
+                    const option = document.createElement('option');
+                    option.value = prod.id;
+                    option.textContent = prod.name;
+                    select.appendChild(option);
+                });
+                if (currentId) {
+                    select.value = currentId;
+                }
+            });
+        };
+
+        const renderSavedProducts = () => {
+            const container = document.getElementById('savedProductsContainer');
+            container.innerHTML = '';
+            productsData.forEach(prod => {
+                const currencySymbol = prod.fobCurrency === 'EUR' ? '€' : '$';
+                const productDiv = document.createElement('div');
+                productDiv.className = 'flex items-center space-x-4 bg-gray-100 p-3 rounded-md justify-between';
+                productDiv.innerHTML = `
+                    <div class="flex-grow">
+                        <span class="font-medium text-gray-800">${prod.name} (${prod.unit})</span>
+                        <p class="text-xs text-gray-600">FOB: ${currencySymbol}${prod.fobValue.toFixed(2)}</p>
+                    </div>
+                    <button class="delete-product-btn text-red-500 hover:text-red-700 transition-colors" data-product-id="${prod.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                `;
+                container.appendChild(productDiv);
+            });
+            document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = e.currentTarget.dataset.productId;
+                    productsData = productsData.filter(p => p.id !== productId);
+                    renderSavedProducts();
+                    updateProductOptions();
+                    updateCalculations();
+                });
+            });
+        };
+
+        const addProduct = () => {
+            const name = document.getElementById('newProductName').value;
+            const measureUnit = document.getElementById('newProductMeasureUnit').value;
+            const fobValue = parseFloat(document.getElementById('newProductFOB_Input').value);
+            const fobCurrency = document.getElementById('newProductFOB_Currency').value;
+            const unitsPerCase = measureUnit === 'unidades' ? parseFloat(document.getElementById('newUnitsPerCase').value) : null;
+            const casesPerPallet = measureUnit === 'unidades' ? parseFloat(document.getElementById('newCasesPerPallet').value) : null;
+            
+            if (name && measureUnit && !isNaN(fobValue)) {
+                if (measureUnit === 'unidades' && (isNaN(unitsPerCase) || isNaN(casesPerPallet))) {
+                    console.error('Por favor, completa todos los campos para el nuevo producto de unidades.');
+                    return;
+                }
+                const newId = 'prod-' + (productsData.length);
+                productsData.push({ id: newId, name, unit: measureUnit, measureUnit, fobValue, fobCurrency, unitsPerCase, casesPerPallet });
+                renderSavedProducts();
+                updateProductOptions();
+                updateCalculations();
+                document.getElementById('newProductName').value = '';
+                document.getElementById('newProductFOB_Input').value = '';
+                if (measureUnit === 'unidades') {
+                    document.getElementById('newUnitsPerCase').value = '';
+                    document.getElementById('newCasesPerPallet').value = '';
+                }
+            } else {
+                console.error('Por favor, completa los campos requeridos para el nuevo producto.');
+            }
+        };
+
+        const addConfigRow = (productId = null, cantidad = 0) => {
+            const container = document.getElementById('productConfigContainer');
+            const rowId = 'config-row-' + configCounter++;
+            
+            const productDiv = document.createElement('div');
+            productDiv.id = rowId;
+            productDiv.className = 'flex items-center space-x-4 bg-gray-100 p-3 rounded-md';
+            productDiv.innerHTML = `
+                <div class="flex-grow">
+                    <label for="product-select-${rowId}" class="sr-only">Seleccionar Producto</label>
+                    <select id="product-select-${rowId}" class="product-select w-full rounded-md border-gray-300 shadow-sm p-2"></select>
+                    <p id="product-details-${rowId}" class="text-xs text-gray-600 mt-1"></p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label for="cantidad-${rowId}" class="block text-sm font-medium text-gray-700"></label>
+                    <input type="number" id="cantidad-${rowId}" value="${cantidad}" min="0" class="cantidad-input w-24 text-center rounded-md border-gray-300 shadow-sm p-2">
+                    <button class="remove-btn text-red-500 hover:text-red-700 transition-colors" data-row-id="${rowId}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+            container.appendChild(productDiv);
+            
+            const selectElement = productDiv.querySelector('.product-select');
+            updateProductOptions();
+            if (productId) {
+                selectElement.value = productId;
+            }
+            
+            const detailsElement = document.getElementById(`product-details-${rowId}`);
+            const cantidadLabel = productDiv.querySelector(`label[for="cantidad-${rowId}"]`);
+            selectElement.addEventListener('change', (e) => {
+                const selectedProd = productsData.find(p => p.id === e.target.value);
+                if (selectedProd) {
+                    const currencySymbol = selectedProd.fobCurrency === 'EUR' ? '€' : '$';
+                    detailsElement.textContent = `FOB: ${currencySymbol}${selectedProd.fobValue.toFixed(2)} por ${selectedProd.unit}`;
+                    cantidadLabel.textContent = selectedProd.measureUnit === 'unidades' ? 'Pallets:' : 'Total Kg:';
+                }
+                updateCalculations();
+            });
+
+            const initialProduct = productsData.find(p => p.id === selectElement.value);
+            if (initialProduct) {
+                const currencySymbol = initialProduct.fobCurrency === 'EUR' ? '€' : '$';
+                detailsElement.textContent = `FOB: ${currencySymbol}${initialProduct.fobValue.toFixed(2)} por ${initialProduct.unit}`;
+                cantidadLabel.textContent = initialProduct.measureUnit === 'unidades' ? 'Pallets:' : 'Total Kg:';
+            }
+
+            productDiv.querySelector('.cantidad-input').addEventListener('input', updateCalculations);
+            productDiv.querySelector('.remove-btn').addEventListener('click', (e) => {
+                const rowToRemove = document.getElementById(e.currentTarget.dataset.rowId);
+                if (rowToRemove) {
+                    rowToRemove.remove();
+                    updateCalculations();
+                }
+            });
+        };
+
+        const addAdditionalCostRow = () => {
+            const container = document.getElementById('additionalCostsContainer');
+            const rowId = 'additional-cost-row-' + additionalCostCounter++;
+            const rowDiv = document.createElement('div');
+            rowDiv.id = rowId;
+            rowDiv.className = 'flex items-center space-x-2';
+            rowDiv.innerHTML = `
+                <input type="text" class="additional-cost-name flex-grow rounded-md border-gray-300 shadow-sm p-2" placeholder="Descripción">
+                <input type="number" class="additional-cost-amount w-28 rounded-md border-gray-300 shadow-sm p-2" placeholder="USD">
+                <button class="remove-additional-cost-btn text-red-500 hover:text-red-700 transition-colors" data-row-id="${rowId}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            `;
+            container.appendChild(rowDiv);
+            rowDiv.querySelector('.additional-cost-amount').addEventListener('input', updateCalculations);
+            rowDiv.querySelector('.remove-additional-cost-btn').addEventListener('click', (e) => {
+                const rowToRemove = document.getElementById(e.currentTarget.dataset.rowId);
+                if (rowToRemove) {
+                    rowToRemove.remove();
+                    updateCalculations();
+                }
+            });
+        };
+
+        const updateCalculations = () => {
+            const exchangeRateEUR = parseFloat(document.getElementById('exchangeRateEUR').value) || 1;
+            const exchangeRateCLP = parseFloat(document.getElementById('exchangeRateCLP').value) || 1;
+            const comision = parseFloat(document.getElementById('comision').value) / 100 || 0;
+            const origen = document.getElementById('origen').value || 'N/A';
+            const destino = document.getElementById('destino').value || 'N/A';
+
+            let totalUnitsGeneral = 0;
+            let totalFOB_Base = 0;
+            let totalFOB_WithComision = 0;
+            let totalCommissionUSD = 0;
+            const productConfigs = document.querySelectorAll('#productConfigContainer > div');
+            
+            const selectedProductsInfo = [];
+
+            productConfigs.forEach(row => {
+                const selectElement = row.querySelector('.product-select');
+                const cantidadInput = row.querySelector('.cantidad-input');
+                
+                const selectedProductId = selectElement.value;
+                const cantidad = parseFloat(cantidadInput.value) || 0;
+                
+                const product = productsData.find(p => p.id === selectedProductId);
+                
+                if (product) {
+                    let fobUSD = product.fobValue;
+                    if (product.fobCurrency === 'EUR') {
+                        fobUSD = product.fobValue * exchangeRateEUR;
+                    }
+                    
+                    let units = 0;
+                    if (product.measureUnit === 'unidades') {
+                        units = cantidad * product.casesPerPallet * product.unitsPerCase;
+                    } else if (product.measureUnit === 'kg') {
+                        units = cantidad;
+                    }
+                    
+                    const fobUnitWithComision = fobUSD * (1 + comision);
+                    const fobTotalBase = fobUSD * units;
+                    const fobTotalWithComision = fobUnitWithComision * units;
+                    
+                    totalUnitsGeneral += units;
+                    totalFOB_Base += fobTotalBase;
+                    totalFOB_WithComision += fobTotalWithComision;
+                    totalCommissionUSD += fobTotalBase * comision;
+
+                    selectedProductsInfo.push({
+                        id: product.id,
+                        name: product.name,
+                        units: units,
+                        unit: product.unit,
+                        measureUnit: product.measureUnit,
+                        fobTotal: fobTotalWithComision,
+                        fobUnit: fobUnitWithComision,
+                        fobUnitBase: fobUSD
+                    });
+                }
+            });
+
+            const servicios = parseFloat(document.getElementById('servicios').value) || 0;
+            const fleteMaritimoUSD = parseFloat(document.getElementById('fleteMaritimo').value) || 0;
+            const fleteTerrestreCLP = parseFloat(document.getElementById('fleteTerrestreCLP').value) || 0;
+            const fleteTerrestreUSD = fleteTerrestreCLP / exchangeRateCLP;
+            const agenciamiento = parseFloat(document.getElementById('agenciamiento').value) / 100 || 0;
+            const despachoAduanero = parseFloat(document.getElementById('despachoAduanero').value) || 0;
+            const seguro_pct = parseFloat(document.getElementById('seguro').value) / 100 || 0;
+            const cda = parseFloat(document.getElementById('cda').value) || 0;
+            
+            const subtotalCIF = totalFOB_WithComision + fleteMaritimoUSD;
+            const seguroUSD = Math.max(subtotalCIF * seguro_pct, 50);
+
+            const cif_usd = subtotalCIF + seguroUSD;
+            const agenciamientoUSD = cif_usd * agenciamiento;
+            const serviciosUSD = servicios;
+
+            let totalAdditionalCosts = 0;
+            const additionalCostRows = document.querySelectorAll('#additionalCostsContainer .additional-cost-amount');
+            additionalCostRows.forEach(input => {
+                totalAdditionalCosts += parseFloat(input.value) || 0;
+            });
+            
+            const costoTotalDDP = cif_usd + agenciamientoUSD + despachoAduanero + cda + fleteTerrestreUSD + serviciosUSD + totalAdditionalCosts;
+            const costoUnitarioDDP = totalUnitsGeneral > 0 ? costoTotalDDP / totalUnitsGeneral : 0;
+
+            const costosPorProductoContainer = document.getElementById('costoUnitarioPorProducto');
+            costosPorProductoContainer.innerHTML = '';
+
+            selectedProductsInfo.forEach(prod => {
+                if (totalFOB_WithComision > 0) {
+                    const share = prod.fobTotal / totalFOB_WithComision;
+                    const proratedFleteMaritimo = fleteMaritimoUSD * share;
+                    const proratedFleteTerrestre = fleteTerrestreUSD * share;
+                    const proratedAgenciamiento = agenciamientoUSD * share;
+                    const proratedDespacho = despachoAduanero * share;
+                    const proratedSeguro = seguroUSD * share;
+                    const proratedCda = cda * share;
+                    const proratedServicios = serviciosUSD * share;
+                    const proratedAdditional = totalAdditionalCosts * share;
+                    
+                    const totalCostPerProduct = prod.fobTotal + proratedFleteMaritimo + proratedFleteTerrestre + proratedAgenciamiento + proratedDespacho + proratedSeguro + proratedCda + proratedServicios + proratedAdditional;
+                    
+                    const unitCostPerProduct = prod.units > 0 ? totalCostPerProduct / prod.units : 0;
+                    
+                    const cifPerProduct = prod.fobTotal + proratedFleteMaritimo + proratedSeguro;
+                    const unitCifPerProduct = prod.units > 0 ? cifPerProduct / prod.units : 0;
+
+                    const productHtml = `
+                        <div class="p-3 bg-white rounded-md shadow-sm">
+                            <h4 class="font-medium text-gray-800">${prod.name} (${prod.unit})</h4>
+                            <ul class="text-sm text-gray-600 mt-1 space-y-1">
+                                <li class="flex justify-between"><span>Costo Unitario FOB (base):</span><span>$${prod.fobUnitBase.toFixed(2)}</span></li>
+                                <li class="flex justify-between"><span>Costo Unitario CIF:</span><span>$${unitCifPerProduct.toFixed(2)}</span></li>
+                                <li class="flex justify-between font-semibold text-gray-900 mt-2"><span>Costo Unitario DDP:</span><span>$${unitCostPerProduct.toFixed(2)}</span></li>
+                            </ul>
+                        </div>
+                    `;
+                    costosPorProductoContainer.innerHTML += productHtml;
+                }
+            });
+
+            const additionalCostRowsHTML = Array.from(document.querySelectorAll('#additionalCostsContainer > div'))
+                .map(row => {
+                    const name = row.querySelector('.additional-cost-name').value || 'Gasto Adicional';
+                    const amount = parseFloat(row.querySelector('.additional-cost-amount').value) || 0;
+                    return `<div class="flex justify-between"><span>${name} (USD):</span><span class="font-medium">$${amount.toFixed(2)}</span></div>`;
+                }).join('');
+
+            const costosDesglosados = document.getElementById('costosDesglosados');
+            costosDesglosados.innerHTML = `
+                <div class="space-y-2">
+                    <h4 class="font-bold text-gray-800">Detalle de Cotización</h4>
+                    <div class="flex justify-between"><span>Origen de Transporte:</span><span class="font-medium">${origen}</span></div>
+                    <div class="flex justify-between"><span>Destino de Transporte:</span><span class="font-medium">${destino}</span></div>
+                    <div class="flex justify-between"><span>Total Unidades:</span><span class="font-medium">${totalUnitsGeneral.toLocaleString('es-CL')}</span></div>
+                </div>
+                
+                <hr class="border-blue-200 my-2">
+                <div class="space-y-2">
+                    <h4 class="font-bold text-gray-800">Costo de Mercancía</h4>
+                    <div class="flex justify-between"><span>Total FOB Base (USD):</span><span class="font-medium">$${totalFOB_Base.toFixed(2)}</span></div>
+                    <div class="flex justify-between text-xs text-gray-500"><span>*Tipo de cambio EUR a USD:</span><span>$${exchangeRateEUR.toFixed(2)}</span></div>
+                    <div class="flex justify-between"><span>Comisión (USD):</span><span class="font-medium">$${totalCommissionUSD.toFixed(2)}</span></div>
+                </div>
+
+                <hr class="border-blue-200 my-2">
+                <div class="space-y-2">
+                    <h4 class="font-bold text-gray-800">Fletes</h4>
+                    <div class="flex justify-between"><span>Flete Marítimo (USD):</span><span class="font-medium">$${fleteMaritimoUSD.toFixed(2)}</span></div>
+                    <div class="flex justify-between"><span>Flete Terrestre (CLP):</span><span class="font-medium">CLP ${fleteTerrestreCLP.toLocaleString('es-CL')}</span></div>
+                    <div class="flex justify-between text-xs text-gray-500"><span>Equivalente en USD:</span><span>$${fleteTerrestreUSD.toFixed(2)}</span></div>
+                </div>
+
+                <hr class="border-blue-200 my-2">
+                <div class="space-y-2">
+                    <h4 class="font-bold text-gray-800">Gastos de Aduana y Otros</h4>
+                    <div class="flex justify-between"><span>Agenciamiento (USD):</span><span class="font-medium">$${agenciamientoUSD.toFixed(2)}</span></div>
+                    <div class="flex justify-between"><span>Despacho Aduanero (USD):</span><span class="font-medium">$${despachoAduanero.toFixed(2)}</span></div>
+                    <div class="flex justify-between"><span>Seguro (USD):</span><span class="font-medium">$${seguroUSD.toFixed(2)}</span></div>
+                    <div class="flex justify-between"><span>CDA (USD):</span><span class="font-medium">$${cda.toFixed(2)}</span></div>
+                    <div class="flex justify-between"><span>Servicios (USD):</span><span class="font-medium">$${serviciosUSD.toFixed(2)}</span></div>
+                    ${additionalCostRowsHTML}
+                </div>
+                
+                <hr class="border-blue-200 my-2">
+                <div class="flex justify-between font-semibold"><span>Costo Total DDP (USD):</span><span>$${costoTotalDDP.toFixed(2)}</span></div>
+            `;
+            document.getElementById('costoUnitarioDDP').textContent = `$${costoUnitarioDDP.toFixed(2)}`;
+        };
+
+        document.getElementById('addProductBtn').addEventListener('click', addProduct);
+        document.getElementById('addConfigBtn').addEventListener('click', () => addConfigRow());
+        document.getElementById('addAdditionalCostBtn').addEventListener('click', addAdditionalCostRow);
+        
+        const fixedInputs = [
+            'comision', 'servicios', 'fleteMaritimo', 'fleteTerrestreCLP', 'agenciamiento', 
+            'despachoAduanero', 'seguro', 'cda', 'exchangeRateCLP', 'origen', 'destino', 'exchangeRateEUR'
+        ];
+        fixedInputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', updateCalculations);
+        });
+
+        document.getElementById('newProductMeasureUnit').addEventListener('change', (e) => {
+            const unitFields = document.getElementById('unitFields');
+            if (e.target.value === 'unidades') {
+                unitFields.style.display = 'block';
+            } else {
+                unitFields.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSavedProducts();
+            addConfigRow('prod-0', 10);
+            addConfigRow('prod-1', 10);
+            updateCalculations();
+        });
+    </script>
+</body>
+</html>

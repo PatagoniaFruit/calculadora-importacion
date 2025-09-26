@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Datos de Productos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="p-6 md:p-12">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-gray-800">Editor de Datos de Productos</h1>
+        <p class="text-center text-gray-600 mb-8">Agrega y edita tus productos. Cuando termines, copia el código generado y pégalo en el archivo `datos.js` de tu Canvas.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Formulario para agregar/editar productos -->
+            <div class="bg-gray-50 rounded-lg p-5 shadow-sm">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Agregar/Editar Producto</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="editor-productName" class="block text-sm font-medium text-gray-700">Nombre del Producto:</label>
+                        <input type="text" id="editor-productName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="Ej: Pulpa de Mango">
+                    </div>
+                    <div>
+                        <label for="editor-measureUnit" class="block text-sm font-medium text-gray-700">Tipo de Medida:</label>
+                        <select id="editor-measureUnit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                            <option value="unidades">Unidades</option>
+                            <option value="kg">Kilogramos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="editor-fobValue" class="block text-sm font-medium text-gray-700">FOB por Unidad de Medida:</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="editor-fobValue" class="flex-grow rounded-md border-gray-300 shadow-sm p-2">
+                            <select id="editor-fobCurrency" class="rounded-md border-gray-300 shadow-sm p-2">
+                                <option value="EUR">EUR (€)</option>
+                                <option value="USD">USD ($)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="editor-unitFields">
+                        <div>
+                            <label for="editor-unitsPerCase" class="block text-sm font-medium text-gray-700">Unidades por Caja:</label>
+                            <input type="number" id="editor-unitsPerCase" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                        </div>
+                        <div>
+                            <label for="editor-casesPerPallet" class="block text-sm font-medium text-gray-700">Cajas por Pallet:</label>
+                            <input type="number" id="editor-casesPerPallet" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="editor-addProductBtn" class="w-full bg-indigo-600 text-white rounded-md py-2 px-4 hover:bg-indigo-700 transition-colors">
+                            Agregar Producto
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de productos y código generado -->
+            <div class="bg-gray-50 rounded-lg p-5 shadow-sm">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Productos Actuales</h2>
+                <div id="editor-productsList" class="space-y-4 mb-6">
+                    <!-- Los productos se listarán aquí -->
+                </div>
+                <div class="bg-gray-100 p-4 rounded-md">
+                    <h3 class="font-semibold text-gray-800 mb-2">Código para `datos.js`</h3>
+                    <textarea id="editor-generatedCode" class="w-full h-48 p-2 text-sm font-mono bg-white rounded-md border-gray-300 shadow-sm" readonly></textarea>
+                    <button id="editor-copyBtn" class="w-full mt-2 bg-green-500 text-white rounded-md py-2 px-4 hover:bg-green-600 transition-colors">
+                        Copiar Código
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let productsData = [
+            { id: 'prod-0', name: 'Aceite 500 ML', unit: 'unidad', measureUnit: 'unidades', fobValue: 3.26, fobCurrency: 'EUR', unitsPerCase: 18, casesPerPallet: 95 },
+            { id: 'prod-1', name: 'Aceite 1 L', unit: 'unidad', measureUnit: 'unidades', fobValue: 5.88, fobCurrency: 'EUR', unitsPerCase: 12, casesPerPallet: 77 },
+            { id: 'prod-2', name: 'Pulpa de Mango con Pepa', unit: 'kg', measureUnit: 'kg', fobValue: 3.00, fobCurrency: 'USD', unitsPerCase: null, casesPerPallet: null },
+            { id: 'prod-3', name: 'Pulpa de Mango sin Pepa', unit: 'kg', measureUnit: 'kg', fobValue: 3.10, fobCurrency: 'USD', unitsPerCase: null, casesPerPallet: null }
+        ];
+
+        const renderProductsList = () => {
+            const listContainer = document.getElementById('editor-productsList');
+            listContainer.innerHTML = '';
+            productsData.forEach(prod => {
+                const currencySymbol = prod.fobCurrency === 'EUR' ? '€' : '$';
+                const productDiv = document.createElement('div');
+                productDiv.className = 'flex items-center space-x-4 bg-gray-100 p-3 rounded-md justify-between';
+                productDiv.innerHTML = `
+                    <div class="flex-grow">
+                        <span class="font-medium text-gray-800">${prod.name} (${prod.unit})</span>
+                        <p class="text-xs text-gray-600">FOB: ${currencySymbol}${prod.fobValue.toFixed(2)}</p>
+                    </div>
+                    <button class="editor-delete-product-btn text-red-500 hover:text-red-700 transition-colors" data-product-id="${prod.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                `;
+                listContainer.appendChild(productDiv);
+            });
+            document.querySelectorAll('.editor-delete-product-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = e.currentTarget.dataset.productId;
+                    productsData = productsData.filter(p => p.id !== productId);
+                    renderProductsList();
+                    generateCode();
+                });
+            });
+        };
+
+        const addProduct = () => {
+            const name = document.getElementById('editor-productName').value;
+            const measureUnit = document.getElementById('editor-measureUnit').value;
+            const fobValue = parseFloat(document.getElementById('editor-fobValue').value);
+            const fobCurrency = document.getElementById('editor-fobCurrency').value;
+            const unitsPerCase = measureUnit === 'unidades' ? parseFloat(document.getElementById('editor-unitsPerCase').value) : null;
+            const casesPerPallet = measureUnit === 'unidades' ? parseFloat(document.getElementById('editor-casesPerPallet').value) : null;
+            
+            if (name && measureUnit && !isNaN(fobValue)) {
+                if (measureUnit === 'unidades' && (isNaN(unitsPerCase) || isNaN(casesPerPallet))) {
+                    console.error('Por favor, completa todos los campos para el nuevo producto de unidades.');
+                    return;
+                }
+                const newId = 'prod-' + (productsData.length + Math.floor(Math.random() * 1000));
+                productsData.push({ id: newId, name, unit: measureUnit, measureUnit, fobValue, fobCurrency, unitsPerCase, casesPerPallet });
+                renderProductsList();
+                generateCode();
+                document.getElementById('editor-productName').value = '';
+                document.getElementById('editor-fobValue').value = '';
+                if (measureUnit === 'unidades') {
+                    document.getElementById('editor-unitsPerCase').value = '';
+                    document.getElementById('editor-casesPerPallet').value = '';
+                }
+            } else {
+                console.error('Por favor, completa los campos requeridos para el nuevo producto.');
+            }
+        };
+
+        const generateCode = () => {
+            const code = `const productsData = ${JSON.stringify(productsData, null, 4)};`;
+            document.getElementById('editor-generatedCode').value = code;
+        };
+
+        document.getElementById('editor-addProductBtn').addEventListener('click', addProduct);
+        document.getElementById('editor-copyBtn').addEventListener('click', () => {
+            const code = document.getElementById('editor-generatedCode');
+            code.select();
+            document.execCommand('copy');
+            alert('¡Código copiado al portapapeles!');
+        });
+        document.getElementById('editor-measureUnit').addEventListener('change', (e) => {
+            const unitFields = document.getElementById('editor-unitFields');
+            if (e.target.value === 'unidades') {
+                unitFields.style.display = 'block';
+            } else {
+                unitFields.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProductsList();
+            generateCode();
+        });
+    </script>
+</body>
+</html>
