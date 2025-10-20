@@ -20,73 +20,53 @@ const productsData = [
         "casesPerPallet": 77
     },
     {
-        "id": "prod-2",
-        "name": "Pulpa de Mango con Pepa",
-        "unit": "kg",
-        "measureUnit": "kg",
-        "fobValue": 3,
-        "fobCurrency": "USD",
-        "unitsPerCase": null,
-        "casesPerPallet": null
-    },
-    {
-        "id": "prod-3",
-        "name": "Pulpa de Mango sin Pepa",
-        "unit": "kg",
-        "measureUnit": "kg",
-        "fobValue": 3.1,
-        "fobCurrency": "USD",
-        "unitsPerCase": null,
-        "casesPerPallet": null
-    },
-    {
-        "id": "prod-620",
-        "name": "Mango Picado",
-        "unit": "kg",
-        "measureUnit": "kg",
-        "fobValue": 1.73,
-        "fobCurrency": "USD",
-        "unitsPerCase": null,
-        "casesPerPallet": null
-    },
-    {
-        "id": "prod-119",
+        "id": "prod-490",
         "name": "Pulpa de Mango",
         "unit": "kg",
         "measureUnit": "kg",
-        "fobValue": 1.6,
+        "fobValue": 1.8,
         "fobCurrency": "USD",
         "unitsPerCase": null,
         "casesPerPallet": null
     },
     {
-        "id": "prod-986",
-        "name": "Pulpa Chirimoya",
+        "id": "prod-155",
+        "name": "Pulpa de Palta",
         "unit": "kg",
         "measureUnit": "kg",
-        "fobValue": 3.3,
+        "fobValue": 3.5,
         "fobCurrency": "USD",
         "unitsPerCase": null,
         "casesPerPallet": null
     },
     {
-        "id": "prod-446",
-        "name": "Aceite de Oliva Jaen 500 ml",
-        "unit": "unidades",
-        "measureUnit": "unidades",
-        "fobValue": 3.05,
-        "fobCurrency": "EUR",
-        "unitsPerCase": 12,
-        "casesPerPallet": 100
+        "id": "prod-780",
+        "name": "Pulpa de Maracuyá con pepa",
+        "unit": "kg",
+        "measureUnit": "kg",
+        "fobValue": 4.05,
+        "fobCurrency": "USD",
+        "unitsPerCase": null,
+        "casesPerPallet": null
     },
     {
-        "id": "prod-136",
-        "name": "Aceite de Oliva Jaen 1 L",
-        "unit": "unidades",
-        "measureUnit": "unidades",
-        "fobValue": 5.1,
-        "fobCurrency": "EUR",
-        "unitsPerCase": 6,
-        "casesPerPallet": 120
+        "id": "prod-537",
+        "name": "Pulpa de Maracuyá sin pepa",
+        "unit": "kg",
+        "measureUnit": "kg",
+        "fobValue": 4.15,
+        "fobCurrency": "USD",
+        "unitsPerCase": null,
+        "casesPerPallet": null
+    },
+    {
+        "id": "prod-926",
+        "name": "Mango Bites & Pieces",
+        "unit": "kg",
+        "measureUnit": "kg",
+        "fobValue": 1.65,
+        "fobCurrency": "USD",
+        "unitsPerCase": null,
+        "casesPerPallet": null
     }
 ];
