@@ -23,6 +23,32 @@
         details[open] summary .arrow-down {
             transform: rotate(180deg);
         }
+        @media print {
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            .print-hide {
+                display: none !important;
+            }
+            .print-show {
+                display: block !important;
+            }
+            #results-section, .max-w-5xl {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+                max-width: 100% !important;
+            }
+            #results-section {
+                background-color: #ffffff;
+            }
+            #costosDesglosados div, #costoUnitarioPorProducto div {
+                box-shadow: none;
+                border: 1px solid #e5e7eb; /* Borde ligero para impresión */
+            }
+        }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -35,7 +61,7 @@
         </div>
 
         <!-- 2. Parámetros Generales -->
-        <section>
+        <section class="print-hide">
             <h2 class="text-2xl font-semibold text-gray-900 border-b border-gray-200 pb-4 mb-6">Paso 1: Parámetros Generales</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
@@ -62,7 +88,7 @@
         </section>
 
         <!-- 3. Gestión de Productos (Acordeón) -->
-        <section>
+        <section class="print-hide">
             <details class="bg-gray-50 rounded-lg shadow-sm border border-gray-200">
                 <summary class="p-5 flex justify-between items-center">
                     <h2 class="text-xl font-semibold text-gray-700">Gestión de Productos (Agregar, Editar, Eliminar)</h2>
@@ -136,7 +162,7 @@
         </section>
 
         <!-- 4. Configuración del Contenedor -->
-        <section>
+        <section class="print-hide">
             <h2 class="text-2xl font-semibold text-gray-900 border-b border-gray-200 pb-4 mb-6">Paso 2: Configuración del Contenedor</h2>
             <div id="productConfigContainer" class="space-y-4">
                 <!-- La configuración de productos se insertará aquí dinámicamente -->
@@ -150,7 +176,7 @@
         </section>
 
         <!-- 5. Costos de Importación -->
-        <section>
+        <section class="print-hide">
             <h2 class="text-2xl font-semibold text-gray-900 border-b border-gray-200 pb-4 mb-6">Paso 3: Costos de Importación</h2>
             
             <div class_ ="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -218,8 +244,15 @@
         </section>
 
         <!-- 6. Resultados y Resumen de Costos -->
-        <section class="bg-blue-50 rounded-xl p-6 md:p-8 shadow-inner border border-blue-100">
-            <h2 class="text-3xl font-bold text-center mb-6 text-blue-900">Paso 4: Resumen de Costos DDP</h2>
+        <section id="results-section" class="bg-blue-50 rounded-xl p-6 md:p-8 shadow-inner border border-blue-100">
+            <div class="flex justify-between items-center mb-6 print-hide">
+                <h2 class="text-3xl font-bold text-blue-900">Paso 4: Resumen de Costos DDP</h2>
+                <button id="printPdfBtn" class="bg-red-600 text-white rounded-md py-2 px-5 hover:bg-red-700 transition-colors flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2H5zm0 2h10v6H5V6zm0 8a2 2 0 00-2 2v2a2 2 0 002 2h10a2 2 0 002-2v-2a2 2 0 00-2-2H5zm10 4H5v-2h10v2z" /></svg>
+                    <span>Exportar a PDF</span>
+                </button>
+            </div>
+            <h2 class="text-3xl font-bold text-center mb-6 text-black hidden print-show">Resumen de Costos DDP</h2>
 
             <!-- Resumen de Totales -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -749,6 +782,12 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
+            /* ADDED FOR PDF */
+            document.getElementById('printPdfBtn').addEventListener('click', () => {
+                window.print();
+            });
+            /* END ADDED FOR PDF */
+
             document.getElementById('unitFields').style.display = 'block'; // Default a 'unidades'
             renderSavedProducts();
             
