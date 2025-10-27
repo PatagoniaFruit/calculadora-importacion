@@ -3,174 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Importación</title>
+    <title>Calculadora de Importación DDP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #f3f4f6; /* Gris más claro para el fondo */
             color: #1f2937;
+        }
+        /* Estilo para el acordeón de <details> */
+        details > summary {
+            list-style: none;
+            cursor: pointer;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        details[open] summary .arrow-down {
+            transform: rotate(180deg);
         }
     </style>
 </head>
-<body class="p-6 md:p-12">
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
-        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-gray-800">Calculadora de Importación DDP</h1>
-        <p class="text-center text-gray-600 mb-8">Calcula el costo total de importación por unidad de tus productos.</p>
+<body class="p-4 md:p-10">
+    <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8">
+        
+        <!-- 1. Título -->
+        <div>
+            <h1 class="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-900">Calculadora de Importación DDP</h1>
+            <p class="text-center text-gray-600">Calcula el costo total de importación por unidad de tus productos.</p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <!-- Sección de Proveedores y Productos -->
-            <div class="bg-gray-50 rounded-lg p-5 shadow-sm">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700">Gestor de Productos</h2>
-                <div class="bg-gray-100 rounded-md p-3 mb-4">
-                    <h3 class="font-medium text-gray-800 mb-2">Agregar Nuevo Producto</h3>
-                    <div class="space-y-2">
-                        <div>
-                            <label for="newProductName" class="block text-sm font-medium text-gray-700">Nombre del Producto:</label>
-                            <input type="text" id="newProductName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="Ej: Pulpa de Mango">
-                        </div>
-                        <div>
-                            <label for="newProductMeasureUnit" class="block text-sm font-medium text-gray-700">Tipo de Medida:</label>
-                             <select id="newProductMeasureUnit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
-                                <option value="unidades">Unidades</option>
-                                <option value="kg">Kilogramos</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="newProductFOB_Input" class="block text-sm font-medium text-gray-700">FOB por Unidad de Medida:</label>
-                            <div class="flex items-center space-x-2">
-                                <input type="number" id="newProductFOB_Input" class="flex-grow rounded-md border-gray-300 shadow-sm p-2">
-                                <select id="newProductFOB_Currency" class="rounded-md border-gray-300 shadow-sm p-2">
-                                    <option value="EUR">EUR (€)</option>
-                                    <option value="USD">USD ($)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="unitFields">
+        <!-- 2. Parámetros Generales -->
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-900 border-b border-gray-200 pb-4 mb-6">Paso 1: Parámetros Generales</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div>
+                    <label for="origen" class="block text-sm font-medium text-gray-700">Origen de Transporte:</label>
+                    <input type="text" id="origen" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500" placeholder="Ej: Valencia">
+                </div>
+                <div>
+                    <label for="destino" class="block text-sm font-medium text-gray-700">Destino de Transporte:</label>
+                    <input type="text" id="destino" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500" placeholder="Ej: San Antonio">
+                </div>
+                <div>
+                    <label for="exchangeRateEUR" class="block text-sm font-medium text-gray-700">Tipo de Cambio (EUR a USD):</label>
+                    <input type="number" id="exchangeRateEUR" value="1.08" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="exchangeRateCLP" class="block text-sm font-medium text-gray-700">Tipo de Cambio (CLP a USD):</label>
+                    <input type="number" id="exchangeRateCLP" value="950" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div class="md:col-span-2 lg:col-span-4">
+                    <label for="comision" class="block text-sm font-medium text-gray-700">% Comisión (Sobre FOB):</label>
+                    <input type="number" id="comision" value="6" step="0.01" class="mt-1 block w-full md:w-1/4 rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Gestión de Productos (Acordeón) -->
+        <section>
+            <details class="bg-gray-50 rounded-lg shadow-sm border border-gray-200">
+                <summary class="p-5 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-700">Gestión de Productos (Agregar, Editar, Eliminar)</h2>
+                    <svg class="w-6 h-6 text-gray-600 transition-transform transform arrow-down" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                </summary>
+                <div class="p-5 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Columna para Agregar Producto -->
+                    <div class="bg-white rounded-md p-4 border border-gray-200">
+                        <h3 class="font-medium text-gray-800 mb-3">Agregar Nuevo Producto</h3>
+                        <div class="space-y-3">
                             <div>
-                                <label for="newUnitsPerCase" class="block text-sm font-medium text-gray-700">Unidades por Caja:</label>
-                                <input type="number" id="newUnitsPerCase" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                                <label for="newProductName" class="block text-sm font-medium text-gray-700">Nombre del Producto:</label>
+                                <input type="text" id="newProductName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="Ej: Pulpa de Mango">
                             </div>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label for="newProductMeasureUnit" class="block text-sm font-medium text-gray-700">Tipo de Medida:</label>
+                                    <select id="newProductMeasureUnit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                                        <option value="unidades">Unidades</option>
+                                        <option value="kg">Kilogramos</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="newProductUnit" class="block text-sm font-medium text-gray-700">Etiqueta Unidad:</label>
+                                    <input type="text" id="newProductUnit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="ej: unidad, kg, bolsa">
+                                </div>
+                            </div>
+                            
                             <div>
-                                <label for="newCasesPerPallet" class="block text-sm font-medium text-gray-700">Cajas por Pallet:</label>
-                                <input type="number" id="newCasesPerPallet" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                                <label for="newProductFOB_Input" class="block text-sm font-medium text-gray-700">FOB por Unidad de Medida:</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" id="newProductFOB_Input" class="flex-grow rounded-md border-gray-300 shadow-sm p-2">
+                                    <select id="newProductFOB_Currency" class="rounded-md border-gray-300 shadow-sm p-2">
+                                        <option value="EUR">EUR (€)</option>
+                                        <option value="USD">USD ($)</option>
+                                    </select>
+                                </div>
                             </div>
+                            
+                            <div id="unitFields" class="space-y-3">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label for="newUnitsPerCase" class="block text-sm font-medium text-gray-700">Unidades por Caja:</label>
+                                        <input type="number" id="newUnitsPerCase" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                                    </div>
+                                    <div>
+                                        <label for="newCasesPerPallet" class="block text-sm font-medium text-gray-700">Cajas por Pallet:</label>
+                                        <input type="number" id="newCasesPerPallet" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button id="addProductBtn" class="w-full bg-indigo-600 text-white rounded-md py-2 px-4 hover:bg-indigo-700 transition-colors">
+                                Agregar Producto a la Base
+                            </button>
                         </div>
-                        <button id="addProductBtn" class="w-full bg-indigo-600 text-white rounded-md py-2 px-4 hover:bg-indigo-700 transition-colors">
-                            Agregar Producto
+                    </div>
+                    
+                    <!-- Columna para Productos Guardados -->
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-3">Productos Guardados</h3>
+                        <div id="savedProductsContainer" class="space-y-2 max-h-96 overflow-y-auto pr-2">
+                            <!-- La lista de productos guardados se insertará aquí -->
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </section>
+
+        <!-- 4. Configuración del Contenedor -->
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-900 border-b border-gray-200 pb-4 mb-6">Paso 2: Configuración del Contenedor</h2>
+            <div id="productConfigContainer" class="space-y-4">
+                <!-- La configuración de productos se insertará aquí dinámicamente -->
+            </div>
+            <button id="addConfigBtn" class="w-full md:w-auto bg-blue-600 text-white rounded-md py-2 px-5 mt-4 hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                <span>Agregar Producto al Contenedor</span>
+            </button>
+        </section>
+
+        <!-- 5. Costos de Importación -->
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-900 border-b border-gray-200 pb-4 mb-6">Paso 3: Costos de Importación</h2>
+            
+            <div class_ ="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Columna 1: Fletes -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-medium text-gray-800">Fletes</h3>
+                    <div>
+                        <label for="fleteMaritimo" class="block text-sm font-medium text-gray-700">Flete Marítimo Total (USD):</label>
+                        <input type="number" id="fleteMaritimo" value="4212.56" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="fleteTerrestreCLP" class="block text-sm font-medium text-gray-700">Flete Terrestre Total (CLP):</label>
+                        <input type="number" id="fleteTerrestreCLP" value="150000" step="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Columna 2: Gastos de Aduana -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-medium text-gray-800">Gastos de Aduana</h3>
+                    <div>
+                        <label for="agenciamiento" class="block text-sm font-medium text-gray-700">Agenciamiento (% sobre CIF):</label>
+                        <input type="number" id="agenciamiento" value="0.35" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="despachoAduanero" class="block text-sm font-medium text-gray-700">Despacho Aduanero (USD):</label>
+                        <input type="number" id="despachoAduanero" value="50.00" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                     <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="seguro" class="block text-sm font-medium text-gray-700">Seguro (% sobre CIF):</label>
+                            <input type="number" id="seguro" value="0.40" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                         <div>
+                            <label for="seguroMinimo" class="block text-sm font-medium text-gray-700">Mínimo Seguro (USD):</LAbel>
+                            <input type="number" id="seguroMinimo" value="50.00" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="cda" class="block text-sm font-medium text-gray-700">CDA (USD):</label>
+                        <input type="number" id="cda" value="150.00" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Columna 3: Otros Gastos -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-medium text-gray-800">Otros Gastos</h3>
+                    <div>
+                        <label for="servicios" class="block text-sm font-medium text-gray-700">Servicios (USD):</label>
+                        <input type="number" id="servicios" value="0.00" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="pt-2">
+                        <h4 class="text-md font-medium text-gray-700 mb-2">Gastos Adicionales</h4>
+                        <div id="additionalCostsContainer" class="space-y-2">
+                            <!-- Gastos adicionales se insertarán aquí dinámicamente -->
+                        </div>
+                        <button id="addAdditionalCostBtn" class="w-full bg-gray-600 text-white rounded-md py-2 px-4 mt-2 hover:bg-gray-700 transition-colors text-sm flex items-center justify-center space-x-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Agregar Gasto Extra</span>
                         </button>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="mb-4">
-                    <h3 class="font-semibold text-gray-800 mb-2">Productos Guardados</h3>
-                    <div id="savedProductsContainer" class="space-y-2">
-                        <!-- La lista de productos guardados se insertará aquí -->
-                    </div>
-                </div>
+        <!-- 6. Resultados y Resumen de Costos -->
+        <section class="bg-blue-50 rounded-xl p-6 md:p-8 shadow-inner border border-blue-100">
+            <h2 class="text-3xl font-bold text-center mb-6 text-blue-900">Paso 4: Resumen de Costos DDP</h2>
 
-                <div class="mb-4">
-                    <h3 class="font-semibold text-gray-800 mb-2">Configuración del Contenedor</h3>
-                    <div id="productConfigContainer" class="space-y-4">
-                        <!-- La configuración de productos se insertará aquí dinámicamente -->
-                    </div>
-                    <button id="addConfigBtn" class="w-full bg-blue-600 text-white rounded-md py-2 px-4 mt-4 hover:bg-blue-700 transition-colors">
-                        Agregar Producto al Contenedor
-                    </button>
+            <!-- Resumen de Totales -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-lg shadow-md border border-blue-100 text-center">
+                    <span class="block text-sm font-medium text-blue-800">Costo Total DDP</span>
+                    <span id="costoTotalDDP" class="text-2xl font-bold text-blue-900">$0.00</span>
                 </div>
-
-                <div class="mb-4">
-                    <label for="comision" class="block text-sm font-medium text-gray-700">Comisión (%):</label>
-                    <input type="number" id="comision" value="6" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                <div class="bg-white p-4 rounded-lg shadow-md border border-blue-100 text-center">
+                    <span class="block text-sm font-medium text-blue-800">Total Unidades / Kg</span>
+                    <span id="totalUnitsGeneral" class="text-2xl font-bold text-blue-900">0</span>
                 </div>
-                <div class="mb-4">
-                    <label for="servicios" class="block text-sm font-medium text-gray-700">Servicios (USD):</label>
-                    <input type="number" id="servicios" value="0.00" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                <div class="bg-white p-4 rounded-lg shadow-md border border-blue-100 text-center">
+                    <span class="block text-sm font-medium text-blue-800">Costo Promedio DDP</span>
+                    <span id="costoUnitarioDDP" class="text-2xl font-bold text-blue-900">$0.00</span>
                 </div>
             </div>
 
-            <!-- Sección de Gastos de Importación -->
-            <div class="bg-gray-50 rounded-lg p-5 shadow-sm">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700">Gastos & Fletes</h2>
-                <div class="mb-4">
-                    <label for="exchangeRateEUR" class="block text-sm font-medium text-gray-700">Tipo de Cambio (EUR a USD):</label>
-                    <input type="number" id="exchangeRateEUR" value="1.17" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                </div>
-                <div class="mb-4">
-                    <label for="exchangeRateCLP" class="block text-sm font-medium text-gray-700">Tipo de Cambio (CLP a USD):</label>
-                    <input type="number" id="exchangeRateCLP" value="950" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="origen" class="block text-sm font-medium text-gray-700">Origen de Transporte:</label>
-                        <input type="text" id="origen" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="Ej: San Antonio">
-                    </div>
-                    <div>
-                        <label for="destino" class="block text-sm font-medium text-gray-700">Destino de Transporte:</label>
-                        <input type="text" id="destino" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="Ej: Temuco">
+            <!-- Desglose -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Columna Izquierda: Desglose de Gastos -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-blue-800">Desglose de Gastos Totales</h3>
+                    <div id="costosDesglosados" class="space-y-4 text-sm">
+                        <!-- Los resultados se inyectarán aquí por JavaScript -->
                     </div>
                 </div>
-                <div class="mb-4">
-                    <label for="fleteMaritimo" class="block text-sm font-medium text-gray-700">Flete Marítimo Total (USD):</label>
-                    <input type="number" id="fleteMaritimo" value="4212.56" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                </div>
-                <div class="mb-4">
-                    <label for="fleteTerrestreCLP" class="block text-sm font-medium text-gray-700">Flete Terrestre Total (CLP):</label>
-                    <input type="number" id="fleteTerrestreCLP" value="150000" step="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                </div>
-                <div class="mb-4">
-                    <label for="agenciamiento" class="block text-sm font-medium text-gray-700">Agenciamiento (%):</label>
-                    <input type="number" id="agenciamiento" value="0.35" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                </div>
-                <div class="mb-4">
-                    <label for="despachoAduanero" class="block text-sm font-medium text-gray-700">Despacho Aduanero (USD):</label>
-                    <input type="number" id="despachoAduanero" value="50.00" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                </div>
-                <div class="mb-4">
-                    <label for="seguro" class="block text-sm font-medium text-gray-700">Seguro (%):</label>
-                    <input type="number" id="seguro" value="0.40" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                </div>
-                <div class="mb-4">
-                    <label for="cda" class="block text-sm font-medium text-gray-700">CDA (USD):</label>
-                    <input type="number" id="cda" value="150.00" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                </div>
-                 <div class="mb-4">
-                    <h3 class="text-lg font-semibold mb-2 text-gray-700">Gastos Adicionales</h3>
-                    <div id="additionalCostsContainer" class="space-y-2">
-                        <!-- Gastos adicionales se insertarán aquí dinámicamente -->
+                
+                <!-- Columna Derecha: Costo por Producto -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-blue-800">Costo Unitario por Producto</h3>
+                    <div id="costoUnitarioPorProducto" class="space-y-4">
+                        <!-- Los costos unitarios por producto se inyectarán aquí -->
                     </div>
-                    <button id="addAdditionalCostBtn" class="w-full bg-yellow-400 text-gray-800 rounded-md py-2 px-4 mt-2 hover:bg-yellow-500 transition-colors">
-                        Agregar Gasto Adicional
-                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- Resultados y Resumen de Costos -->
-        <div class="bg-blue-50 rounded-xl p-6 md:p-8 shadow-inner">
-            <h2 class="text-2xl font-bold text-center mb-4 text-blue-800">Resumen de Costos DDP</h2>
-            <div id="costosDesglosados" class="space-y-4">
-                <!-- Los resultados se inyectarán aquí por JavaScript -->
-            </div>
-            
-            <h3 class="text-lg font-semibold mt-8 mb-2 text-blue-700">Costo Unitario por Producto</h3>
-            <div id="costoUnitarioPorProducto" class="space-y-4">
-                <!-- Los costos unitarios por producto se inyectarán aquí -->
-            </div>
-            
-            <div class="mt-6 pt-4 border-t border-blue-200">
-                <div class="flex justify-between items-center text-xl font-bold text-blue-800">
-                    <span>Costo Unitario DDP (Promedio):</span>
-                    <span id="costoUnitarioDDP" class="text-2xl">--</span>
-                </div>
-            </div>
-        </div>
+        </section>
 
     </div>
 
-    <script src="./datos.js"></script>
+    <!-- <script src="./datos.js"></script> --> <!-- datos.js ahora está integrado abajo -->
     <script>
+        let productsData = [
+          {
+            "id": "prod-0",
+            "name": "Aceite de Oliva 500 ml",
+            "unit": "unidades",
+            "measureUnit": "unidades",
+            "fobValue": 3.26,
+            "fobCurrency": "EUR",
+            "unitsPerCase": 18,
+            "casesPerPallet": 95
+          },
+          {
+            "id": "prod-1",
+            "name": "Aceite de Oliva 1 L",
+            "unit": "unidades",
+            "measureUnit": "unidades",
+            "fobValue": 5.88,
+            "fobCurrency": "EUR",
+            "unitsPerCase": 12,
+            "casesPerPallet": 77
+          },
+          {
+            "id": "prod-2",
+            "name": "Pulpa Maracuyá con Pepa",
+            "unit": "kg",
+            "measureUnit": "kg",
+            "fobValue": 3.00,
+            "fobCurrency": "USD",
+            "unitsPerCase": null,
+            "casesPerPallet": null
+          },
+          {
+            "id": "prod-3",
+            "name": "Pulpa Maracuyá sin Pepa",
+            "unit": "kg",
+            "measureUnit": "kg",
+            "fobValue": 3.10,
+            "fobCurrency": "USD",
+            "unitsPerCase": null,
+            "casesPerPallet": null
+          }
+        ];
+
         let configCounter = 0;
         let additionalCostCounter = 0;
 
@@ -178,7 +312,7 @@
             const selects = document.querySelectorAll('.product-select');
             selects.forEach(select => {
                 const currentId = select.value;
-                select.innerHTML = '';
+                select.innerHTML = '<option value="">Seleccione un producto...</option>';
                 productsData.forEach(prod => {
                     const option = document.createElement('option');
                     option.value = prod.id;
@@ -194,18 +328,22 @@
         const renderSavedProducts = () => {
             const container = document.getElementById('savedProductsContainer');
             container.innerHTML = '';
+            if (productsData.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500">No hay productos en la base de datos.</p>';
+            }
             productsData.forEach(prod => {
                 const currencySymbol = prod.fobCurrency === 'EUR' ? '€' : '$';
                 const productDiv = document.createElement('div');
-                productDiv.className = 'flex items-center space-x-4 bg-gray-100 p-3 rounded-md justify-between';
+                productDiv.className = 'flex items-center space-x-4 bg-white p-3 rounded-md border border-gray-200 justify-between';
                 productDiv.innerHTML = `
                     <div class="flex-grow">
-                        <span class="font-medium text-gray-800">${prod.name} (${prod.unit})</span>
+                        <span class="font-medium text-gray-800">${prod.name}</span>
+                        <p class="text-xs text-gray-600">Unidad: ${prod.unit} | Medida: ${prod.measureUnit}</p>
                         <p class="text-xs text-gray-600">FOB: ${currencySymbol}${prod.fobValue.toFixed(2)}</p>
                     </div>
                     <button class="delete-product-btn text-red-500 hover:text-red-700 transition-colors" data-product-id="${prod.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                         </svg>
                     </button>
                 `;
@@ -214,7 +352,10 @@
             document.querySelectorAll('.delete-product-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const productId = e.currentTarget.dataset.productId;
-                    productsData = productsData.filter(p => p.id !== productId);
+                    const productIndex = productsData.findIndex(p => p.id === productId);
+                    if (productIndex > -1) {
+                        productsData.splice(productIndex, 1);
+                    }
                     renderSavedProducts();
                     updateProductOptions();
                     updateCalculations();
@@ -225,22 +366,26 @@
         const addProduct = () => {
             const name = document.getElementById('newProductName').value;
             const measureUnit = document.getElementById('newProductMeasureUnit').value;
+            const unit = document.getElementById('newProductUnit').value || measureUnit; // Fallback a measureUnit si está vacío
             const fobValue = parseFloat(document.getElementById('newProductFOB_Input').value);
             const fobCurrency = document.getElementById('newProductFOB_Currency').value;
             const unitsPerCase = measureUnit === 'unidades' ? parseFloat(document.getElementById('newUnitsPerCase').value) : null;
             const casesPerPallet = measureUnit === 'unidades' ? parseFloat(document.getElementById('newCasesPerPallet').value) : null;
             
-            if (name && measureUnit && !isNaN(fobValue)) {
-                if (measureUnit === 'unidades' && (isNaN(unitsPerCase) || isNaN(casesPerPallet))) {
-                    console.error('Por favor, completa todos los campos para el nuevo producto de unidades.');
+            if (name && measureUnit && !isNaN(fobValue) && unit) {
+                if (measureUnit === 'unidades' && (isNaN(unitsPerCase) || isNaN(casesPerPallet) || unitsPerCase <= 0 || casesPerPallet <= 0)) {
+                    console.error('Por favor, completa todos los campos para el nuevo producto de unidades con valores válidos.');
                     return;
                 }
-                const newId = 'prod-' + (productsData.length);
-                productsData.push({ id: newId, name, unit: measureUnit, measureUnit, fobValue, fobCurrency, unitsPerCase, casesPerPallet });
+                const newId = 'prod-' + Date.now(); // Usar timestamp para ID único
+                productsData.push({ id: newId, name, unit, measureUnit, fobValue, fobCurrency, unitsPerCase, casesPerPallet });
                 renderSavedProducts();
                 updateProductOptions();
                 updateCalculations();
+                
+                // Limpiar formulario
                 document.getElementById('newProductName').value = '';
+                document.getElementById('newProductUnit').value = '';
                 document.getElementById('newProductFOB_Input').value = '';
                 if (measureUnit === 'unidades') {
                     document.getElementById('newUnitsPerCase').value = '';
@@ -257,19 +402,20 @@
             
             const productDiv = document.createElement('div');
             productDiv.id = rowId;
-            productDiv.className = 'flex items-center space-x-4 bg-gray-100 p-3 rounded-md';
+            productDiv.className = 'flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 bg-gray-50 p-4 rounded-lg border';
+            
             productDiv.innerHTML = `
-                <div class="flex-grow">
+                <div class="w-full md:flex-grow">
                     <label for="product-select-${rowId}" class="sr-only">Seleccionar Producto</label>
                     <select id="product-select-${rowId}" class="product-select w-full rounded-md border-gray-300 shadow-sm p-2"></select>
                     <p id="product-details-${rowId}" class="text-xs text-gray-600 mt-1"></p>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 w-full md:w-auto">
                     <label for="cantidad-${rowId}" class="block text-sm font-medium text-gray-700"></label>
-                    <input type="number" id="cantidad-${rowId}" value="${cantidad}" min="0" class="cantidad-input w-24 text-center rounded-md border-gray-300 shadow-sm p-2">
+                    <input type="number" id="cantidad-${rowId}" value="${cantidad}" min="0" class="cantidad-input w-full md:w-28 text-center rounded-md border-gray-300 shadow-sm p-2">
                     <button class="remove-btn text-red-500 hover:text-red-700 transition-colors" data-row-id="${rowId}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                         </svg>
                     </button>
                 </div>
@@ -284,22 +430,26 @@
             
             const detailsElement = document.getElementById(`product-details-${rowId}`);
             const cantidadLabel = productDiv.querySelector(`label[for="cantidad-${rowId}"]`);
-            selectElement.addEventListener('change', (e) => {
-                const selectedProd = productsData.find(p => p.id === e.target.value);
+            
+            const updateRowDetails = (selectedProd) => {
                 if (selectedProd) {
                     const currencySymbol = selectedProd.fobCurrency === 'EUR' ? '€' : '$';
                     detailsElement.textContent = `FOB: ${currencySymbol}${selectedProd.fobValue.toFixed(2)} por ${selectedProd.unit}`;
                     cantidadLabel.textContent = selectedProd.measureUnit === 'unidades' ? 'Pallets:' : 'Total Kg:';
+                } else {
+                    detailsElement.textContent = '';
+                    cantidadLabel.textContent = 'Cantidad:';
                 }
+            };
+
+            selectElement.addEventListener('change', (e) => {
+                const selectedProd = productsData.find(p => p.id === e.target.value);
+                updateRowDetails(selectedProd);
                 updateCalculations();
             });
 
             const initialProduct = productsData.find(p => p.id === selectElement.value);
-            if (initialProduct) {
-                const currencySymbol = initialProduct.fobCurrency === 'EUR' ? '€' : '$';
-                detailsElement.textContent = `FOB: ${currencySymbol}${initialProduct.fobValue.toFixed(2)} por ${initialProduct.unit}`;
-                cantidadLabel.textContent = initialProduct.measureUnit === 'unidades' ? 'Pallets:' : 'Total Kg:';
-            }
+            updateRowDetails(initialProduct);
 
             productDiv.querySelector('.cantidad-input').addEventListener('input', updateCalculations);
             productDiv.querySelector('.remove-btn').addEventListener('click', (e) => {
@@ -318,11 +468,11 @@
             rowDiv.id = rowId;
             rowDiv.className = 'flex items-center space-x-2';
             rowDiv.innerHTML = `
-                <input type="text" class="additional-cost-name flex-grow rounded-md border-gray-300 shadow-sm p-2" placeholder="Descripción">
-                <input type="number" class="additional-cost-amount w-28 rounded-md border-gray-300 shadow-sm p-2" placeholder="USD">
+                <input type="text" class="additional-cost-name flex-grow rounded-md border-gray-300 shadow-sm p-2 text-sm" placeholder="Descripción">
+                <input type="number" class="additional-cost-amount w-28 rounded-md border-gray-300 shadow-sm p-2 text-sm" placeholder="USD">
                 <button class="remove-additional-cost-btn text-red-500 hover:text-red-700 transition-colors" data-row-id="${rowId}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                     </svg>
                 </button>
             `;
@@ -336,6 +486,14 @@
                 }
             });
         };
+
+        const formatCurrency = (value) => {
+            return `$${(value || 0).toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        };
+        
+        const formatNumber = (value) => {
+             return (value || 0).toLocaleString('es-CL');
+        }
 
         const updateCalculations = () => {
             const exchangeRateEUR = parseFloat(document.getElementById('exchangeRateEUR').value) || 1;
@@ -403,10 +561,11 @@
             const agenciamiento = parseFloat(document.getElementById('agenciamiento').value) / 100 || 0;
             const despachoAduanero = parseFloat(document.getElementById('despachoAduanero').value) || 0;
             const seguro_pct = parseFloat(document.getElementById('seguro').value) / 100 || 0;
+            const seguro_min = parseFloat(document.getElementById('seguroMinimo').value) || 0;
             const cda = parseFloat(document.getElementById('cda').value) || 0;
             
             const subtotalCIF = totalFOB_WithComision + fleteMaritimoUSD;
-            const seguroUSD = Math.max(subtotalCIF * seguro_pct, 50);
+            const seguroUSD = Math.max(subtotalCIF * seguro_pct, seguro_min);
 
             const cif_usd = subtotalCIF + seguroUSD;
             const agenciamientoUSD = cif_usd * agenciamiento;
@@ -425,7 +584,11 @@
             costosPorProductoContainer.innerHTML = '';
 
             selectedProductsInfo.forEach(prod => {
-                if (totalFOB_WithComision > 0) {
+                let unitCostPerProduct = 0;
+                let unitCifPerProduct = 0;
+                let fobUnitBase = prod.fobUnitBase;
+
+                if (totalFOB_WithComision > 0 && prod.units > 0) {
                     const share = prod.fobTotal / totalFOB_WithComision;
                     const proratedFleteMaritimo = fleteMaritimoUSD * share;
                     const proratedFleteTerrestre = fleteTerrestreUSD * share;
@@ -437,73 +600,78 @@
                     const proratedAdditional = totalAdditionalCosts * share;
                     
                     const totalCostPerProduct = prod.fobTotal + proratedFleteMaritimo + proratedFleteTerrestre + proratedAgenciamiento + proratedDespacho + proratedSeguro + proratedCda + proratedServicios + proratedAdditional;
-                    
-                    const unitCostPerProduct = prod.units > 0 ? totalCostPerProduct / prod.units : 0;
+                    unitCostPerProduct = totalCostPerProduct / prod.units;
                     
                     const cifPerProduct = prod.fobTotal + proratedFleteMaritimo + proratedSeguro;
-                    const unitCifPerProduct = prod.units > 0 ? cifPerProduct / prod.units : 0;
-
-                    const productHtml = `
-                        <div class="p-3 bg-white rounded-md shadow-sm">
-                            <h4 class="font-medium text-gray-800">${prod.name} (${prod.unit})</h4>
-                            <ul class="text-sm text-gray-600 mt-1 space-y-1">
-                                <li class="flex justify-between"><span>Costo Unitario FOB (base):</span><span>$${prod.fobUnitBase.toFixed(2)}</span></li>
-                                <li class="flex justify-between"><span>Costo Unitario CIF:</span><span>$${unitCifPerProduct.toFixed(2)}</span></li>
-                                <li class="flex justify-between font-semibold text-gray-900 mt-2"><span>Costo Unitario DDP:</span><span>$${unitCostPerProduct.toFixed(2)}</span></li>
-                            </ul>
-                        </div>
-                    `;
-                    costosPorProductoContainer.innerHTML += productHtml;
+                    unitCifPerProduct = cifPerProduct / prod.units;
+                } else if (prod.units > 0) {
+                     // Caso donde es el único producto
+                    unitCostPerProduct = costoUnitarioDDP;
+                    unitCifPerProduct = (prod.fobTotal + fleteMaritimoUSD + seguroUSD) / prod.units;
                 }
+
+                const productHtml = `
+                    <div class="p-4 bg-white rounded-lg shadow-sm border border-blue-100">
+                        <h4 class="font-semibold text-gray-900">${prod.name}</h4>
+                        <p class="text-sm text-gray-500 mb-2">Total: ${formatNumber(prod.units)} ${prod.unit}s</p>
+                        <ul class="text-sm text-gray-700 mt-1 space-y-1">
+                            <li class="flex justify-between"><span>Costo Unitario FOB (base):</span><span>${formatCurrency(fobUnitBase)}</span></li>
+                            <li class="flex justify-between"><span>Costo Unitario CIF:</span><span>${formatCurrency(unitCifPerProduct)}</span></li>
+                            <li class="flex justify-between font-bold text-blue-800 text-base mt-2"><span>Costo Unitario DDP:</span><span>${formatCurrency(unitCostPerProduct)}</span></li>
+                        </ul>
+                    </div>
+                `;
+                costosPorProductoContainer.innerHTML += productHtml;
             });
 
             const additionalCostRowsHTML = Array.from(document.querySelectorAll('#additionalCostsContainer > div'))
                 .map(row => {
                     const name = row.querySelector('.additional-cost-name').value || 'Gasto Adicional';
                     const amount = parseFloat(row.querySelector('.additional-cost-amount').value) || 0;
-                    return `<div class="flex justify-between"><span>${name} (USD):</span><span class="font-medium">$${amount.toFixed(2)}</span></div>`;
+                    if (amount === 0) return '';
+                    return `<div class="flex justify-between"><span>${name} (USD):</span><span class="font-medium">${formatCurrency(amount)}</span></div>`;
                 }).join('');
 
             const costosDesglosados = document.getElementById('costosDesglosados');
             costosDesglosados.innerHTML = `
-                <div class="space-y-2">
-                    <h4 class="font-bold text-gray-800">Detalle de Cotización</h4>
-                    <div class="flex justify-between"><span>Origen de Transporte:</span><span class="font-medium">${origen}</span></div>
-                    <div class="flex justify-between"><span>Destino de Transporte:</span><span class="font-medium">${destino}</span></div>
-                    <div class="flex justify-between"><span>Total Unidades:</span><span class="font-medium">${totalUnitsGeneral.toLocaleString('es-CL')}</span></div>
-                </div>
-                
-                <hr class="border-blue-200 my-2">
-                <div class="space-y-2">
-                    <h4 class="font-bold text-gray-800">Costo de Mercancía</h4>
-                    <div class="flex justify-between"><span>Total FOB Base (USD):</span><span class="font-medium">$${totalFOB_Base.toFixed(2)}</span></div>
-                    <div class="flex justify-between text-xs text-gray-500"><span>*Tipo de cambio EUR a USD:</span><span>$${exchangeRateEUR.toFixed(2)}</span></div>
-                    <div class="flex justify-between"><span>Comisión (USD):</span><span class="font-medium">$${totalCommissionUSD.toFixed(2)}</span></div>
-                </div>
+                <div class="space-y-3 p-4 bg-white rounded-lg shadow-sm border border-blue-100">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">Detalle de Cotización</h4>
+                        <div class="flex justify-between"><span>Origen de Transporte:</span><span class="font-medium">${origen}</span></div>
+                        <div class="flex justify-between"><span>Destino de Transporte:</span><span class="font-medium">${destino}</span></div>
+                    </div>
+                    
+                    <hr class="border-blue-200 my-2">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">Costo de Mercancía</h4>
+                        <div class="flex justify-between"><span>Total FOB Base (USD):</span><span class="font-medium">${formatCurrency(totalFOB_Base)}</span></div>
+                        <div class="flex justify-between text-xs text-gray-500"><span>*Tipo de cambio EUR a USD:</span><span>${formatCurrency(exchangeRateEUR)}</span></div>
+                        <div class="flex justify-between"><span>Comisión (USD):</span><span class="font-medium">${formatCurrency(totalCommissionUSD)}</span></div>
+                    </div>
 
-                <hr class="border-blue-200 my-2">
-                <div class="space-y-2">
-                    <h4 class="font-bold text-gray-800">Fletes</h4>
-                    <div class="flex justify-between"><span>Flete Marítimo (USD):</span><span class="font-medium">$${fleteMaritimoUSD.toFixed(2)}</span></div>
-                    <div class="flex justify-between"><span>Flete Terrestre (CLP):</span><span class="font-medium">CLP ${fleteTerrestreCLP.toLocaleString('es-CL')}</span></div>
-                    <div class="flex justify-between text-xs text-gray-500"><span>Equivalente en USD:</span><span>$${fleteTerrestreUSD.toFixed(2)}</span></div>
-                </div>
+                    <hr class="border-blue-200 my-2">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">Fletes</h4>
+                        <div class="flex justify-between"><span>Flete Marítimo (USD):</span><span class="font-medium">${formatCurrency(fleteMaritimoUSD)}</span></div>
+                        <div class="flex justify-between"><span>Flete Terrestre (CLP):</span><span class="font-medium">CLP ${formatNumber(fleteTerrestreCLP)}</span></div>
+                        <div class="flex justify-between text-xs text-gray-500"><span>Equivalente en USD:</span><span>${formatCurrency(fleteTerrestreUSD)}</span></div>
+                    </div>
 
-                <hr class="border-blue-200 my-2">
-                <div class="space-y-2">
-                    <h4 class="font-bold text-gray-800">Gastos de Aduana y Otros</h4>
-                    <div class="flex justify-between"><span>Agenciamiento (USD):</span><span class="font-medium">$${agenciamientoUSD.toFixed(2)}</span></div>
-                    <div class="flex justify-between"><span>Despacho Aduanero (USD):</span><span class="font-medium">$${despachoAduanero.toFixed(2)}</span></div>
-                    <div class="flex justify-between"><span>Seguro (USD):</span><span class="font-medium">$${seguroUSD.toFixed(2)}</span></div>
-                    <div class="flex justify-between"><span>CDA (USD):</span><span class="font-medium">$${cda.toFixed(2)}</span></div>
-                    <div class="flex justify-between"><span>Servicios (USD):</span><span class="font-medium">$${serviciosUSD.toFixed(2)}</span></div>
-                    ${additionalCostRowsHTML}
+                    <hr class="border-blue-200 my-2">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">Gastos de Aduana y Otros</h4>
+                        <div class="flex justify-between"><span>Agenciamiento (USD):</span><span class="font-medium">${formatCurrency(agenciamientoUSD)}</span></div>
+                        <div class="flex justify-between"><span>Despacho Aduanero (USD):</span><span class="font-medium">${formatCurrency(despachoAduanero)}</span></div>
+                        <div class="flex justify-between"><span>Seguro (USD):</span><span class="font-medium">${formatCurrency(seguroUSD)}</span></div>
+                        <div class="flex justify-between"><span>CDA (USD):</span><span class="font-medium">${formatCurrency(cda)}</span></div>
+                        <div class="flex justify-between"><span>Servicios (USD):</span><span class="font-medium">${formatCurrency(serviciosUSD)}</span></div>
+                        ${additionalCostRowsHTML}
+                    </div>
                 </div>
-                
-                <hr class="border-blue-200 my-2">
-                <div class="flex justify-between font-semibold"><span>Costo Total DDP (USD):</span><span>$${costoTotalDDP.toFixed(2)}</span></div>
             `;
-            document.getElementById('costoUnitarioDDP').textContent = `$${costoUnitarioDDP.toFixed(2)}`;
+            document.getElementById('costoTotalDDP').textContent = formatCurrency(costoTotalDDP);
+            document.getElementById('totalUnitsGeneral').textContent = formatNumber(totalUnitsGeneral);
+            document.getElementById('costoUnitarioDDP').textContent = formatCurrency(costoUnitarioDDP);
         };
 
         document.getElementById('addProductBtn').addEventListener('click', addProduct);
@@ -512,10 +680,13 @@
         
         const fixedInputs = [
             'comision', 'servicios', 'fleteMaritimo', 'fleteTerrestreCLP', 'agenciamiento', 
-            'despachoAduanero', 'seguro', 'cda', 'exchangeRateCLP', 'origen', 'destino', 'exchangeRateEUR'
+            'despachoAduanero', 'seguro', 'seguroMinimo', 'cda', 'exchangeRateCLP', 'origen', 'destino', 'exchangeRateEUR'
         ];
         fixedInputs.forEach(id => {
-            document.getElementById(id).addEventListener('input', updateCalculations);
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', updateCalculations);
+            }
         });
 
         document.getElementById('newProductMeasureUnit').addEventListener('change', (e) => {
@@ -528,11 +699,23 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('unitFields').style.display = 'block'; // Default a 'unidades'
             renderSavedProducts();
-            addConfigRow('prod-0', 10);
-            addConfigRow('prod-1', 10);
+            
+            // Cargar con ejemplo si la base de datos tiene al menos 2 productos
+            if (productsData.length >= 2) {
+                addConfigRow(productsData[0].id, 10);
+                addConfigRow(productsData[1].id, 10);
+            } else if (productsData.length === 1) {
+                addConfigRow(productsData[0].id, 10);
+            } else {
+                addConfigRow(); // Agregar una fila vacía si no hay datos
+            }
+            
             updateCalculations();
         });
     </script>
 </body>
 </html>
+
+
